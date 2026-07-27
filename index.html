@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aro · Entrenamiento de control</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10171a">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aro">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg: #10171a;
+  --surface: #1a2225;
+  --surface-2: #212b2f;
+  --border: #2b3538;
+  --accent: #6fa287;      /* contracción */
+  --accent-dim: rgba(111,162,135,0.16);
+  --relax: #5f87a3;       /* relajación */
+  --relax-dim: rgba(95,135,163,0.16);
+  --amber: #d9a05b;       /* progreso / destacado */
+  --amber-dim: rgba(217,160,91,0.14);
+  --text: #eef1f0;
+  --text-muted: #8b9a97;
+  --text-faint: #5d6b68;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(111,162,135,0.08), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(95,135,163,0.07), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;}
+::selection{background:var(--accent-dim);}
+button{font-family:inherit;cursor:pointer;}
+input,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+
+.app{max-width:760px;margin:0 auto;padding:0 20px 100px;}
+
+/* ---- Header ---- */
+header.top{
+  padding:28px 20px 18px;
+  display:flex;align-items:baseline;justify-content:space-between;
+  max-width:760px;margin:0 auto;
+}
+header.top .brand{display:flex;align-items:center;gap:10px;}
+header.top .brand .mark{
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid var(--accent);
+  position:relative;flex:none;
+}
+header.top .brand .mark::after{
+  content:'';position:absolute;inset:7px;border-radius:50%;background:var(--accent);opacity:0.55;
+}
+header.top h1{font-size:20px;margin:0;}
+header.top .streak{
+  font-size:13px;color:var(--amber);display:flex;align-items:center;gap:6px;
+  background:var(--amber-dim);padding:6px 12px;border-radius:999px;
+}
+
+/* ---- Tabs ---- */
+nav.tabs{
+  display:flex;gap:4px;overflow-x:auto;padding:4px;
+  background:var(--surface);border:1px solid var(--border);border-radius:999px;
+  max-width:760px;margin:0 auto 24px;position:sticky;top:12px;z-index:20;
+  backdrop-filter:blur(8px);
+}
+nav.tabs button{
+  flex:1;white-space:nowrap;border:none;background:transparent;color:var(--text-muted);
+  padding:10px 14px;border-radius:999px;font-size:13.5px;font-weight:600;transition:.15s;
+}
+nav.tabs button.active{background:var(--accent);color:#0e1512;}
+nav.tabs button:not(.active):hover{color:var(--text);}
+
+section.view{display:none;animation:fade .25s ease;}
+section.view.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* ---- Cards ---- */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;
+}
+.card h2{font-size:17px;margin:0 0 4px;}
+.card .sub{color:var(--text-muted);font-size:13.5px;margin:0 0 14px;line-height:1.5;}
+.pill{
+  display:inline-block;font-size:11.5px;font-weight:600;color:var(--accent);
+  background:var(--accent-dim);padding:3px 10px;border-radius:999px;margin-bottom:10px;
+  letter-spacing:.02em;
+}
+.pill.amber{color:var(--amber);background:var(--amber-dim);}
+.pill.relax{color:var(--relax);background:var(--relax-dim);}
+
+/* ---- Home hero ring ---- */
+.hero{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:32px 20px 28px;
+}
+.hero .ringwrap{width:190px;height:190px;position:relative;margin-bottom:18px;}
+.hero svg{width:100%;height:100%;transform:rotate(-90deg);}
+.hero circle.track{fill:none;stroke:var(--border);stroke-width:6;}
+.hero circle.prog{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear, stroke .3s;
+  animation:breathe 6s ease-in-out infinite;}
+@keyframes breathe{0%,100%{stroke:var(--accent);}50%{stroke:var(--relax);}}
+.hero .ringcenter{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.hero .ringcenter .big{font-family:'Fraunces',serif;font-size:34px;font-weight:600;}
+.hero .ringcenter .lbl{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.hero h2{font-size:19px;margin:0 0 6px;}
+.hero p{color:var(--text-muted);font-size:14px;max-width:340px;margin:0 0 18px;line-height:1.6;}
+
+/* ---- Buttons ---- */
+.btn{
+  border:none;border-radius:999px;padding:12px 22px;font-weight:700;font-size:14px;
+  background:var(--accent);color:#0e1512;transition:.15s;
+}
+.btn:hover{filter:brightness(1.08);}
+.btn.secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);}
+.btn.small{padding:8px 16px;font-size:13px;}
+.btn.block{width:100%;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ---- Checklist (today) ---- */
+.checklist{display:flex;flex-direction:column;gap:10px;}
+.check-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+}
+.check-item .box{
+  width:22px;height:22px;border-radius:7px;border:2px solid var(--text-faint);flex:none;
+  display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+.check-item.done .box{background:var(--accent);border-color:var(--accent);}
+.check-item.done .box::after{content:'✓';color:#0e1512;font-size:13px;font-weight:700;}
+.check-item .info{flex:1;}
+.check-item .info .name{font-weight:600;font-size:14.5px;}
+.check-item .info .meta{font-size:12.5px;color:var(--text-muted);}
+.check-item.done .info .name{color:var(--text-muted);text-decoration:line-through;text-decoration-color:var(--text-faint);}
+.check-item button.go{
+  background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:999px;
+  padding:6px 12px;font-size:12px;font-weight:600;
+}
+
+/* ---- Exercise library ---- */
+.ex-card{cursor:pointer;}
+.ex-card:hover{border-color:var(--accent);}
+.ex-card .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.ex-steps{margin:12px 0 0;padding-left:18px;color:var(--text-muted);font-size:13.5px;line-height:1.7;}
+.ex-steps li{margin-bottom:4px;}
+.ex-detail{display:none;}
+.ex-detail.open{display:block;}
+
+/* ---- Program week list ---- */
+.week{
+  border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;
+  background:var(--surface-2);
+}
+.week.current{border-color:var(--accent);}
+.week .wk-top{display:flex;justify-content:space-between;align-items:center;}
+.week .wk-top .n{font-weight:700;font-size:13px;}
+.week .wk-top .n.current{color:var(--accent);}
+.week .focus{font-size:13px;color:var(--text-muted);margin:6px 0 8px;line-height:1.5;}
+.week .targets{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{font-size:11.5px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);padding:3px 9px;border-radius:999px;}
+
+/* ---- Progress ---- */
+.stat-row{display:flex;gap:12px;margin-bottom:16px;}
+.stat{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;}
+.stat .num{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--amber);}
+.stat .lbl{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px;}
+.cal .d{aspect-ratio:1;border-radius:7px;background:var(--surface-2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-faint);}
+.cal .d.done{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.cal .d.today{outline:1.5px solid var(--amber);}
+.log-field{margin-top:16px;}
+.log-field label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;}
+.log-field input{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);padding:10px 12px;font-size:14px;
+}
+
+/* ---- Guide / education ---- */
+.guide p{color:var(--text-muted);font-size:14px;line-height:1.7;margin:0 0 12px;}
+.guide .stat-line{
+  display:flex;align-items:baseline;gap:8px;margin:14px 0;padding:12px 14px;
+  background:var(--amber-dim);border-radius:var(--radius-sm);
+}
+.guide .stat-line .n{font-family:'Fraunces',serif;font-size:20px;color:var(--amber);font-weight:600;}
+.guide .stat-line .t{font-size:13px;color:var(--text-muted);}
+.disclaimer{
+  font-size:12.5px;color:var(--text-faint);line-height:1.6;border-top:1px solid var(--border);
+  margin-top:18px;padding-top:14px;
+}
+
+/* ---- Session overlay ---- */
+.overlay{
+  position:fixed;inset:0;background:rgba(8,12,13,0.88);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.overlay.open{display:flex;}
+.session{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:32px 26px;max-width:380px;width:100%;text-align:center;
+}
+.session h3{margin:0 0 4px;font-size:18px;}
+.session .cyclecount{color:var(--text-muted);font-size:13px;margin-bottom:20px;}
+.session .ringwrap{width:200px;height:200px;margin:0 auto 20px;position:relative;}
+.session svg{width:100%;height:100%;transform:rotate(-90deg);}
+.session circle.track{fill:none;stroke:var(--surface-2);stroke-width:8;}
+.session circle.prog{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .1s linear, stroke .3s;}
+.session .ringcenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.session .phase{font-family:'Fraunces',serif;font-size:22px;font-weight:600;}
+.session .secs{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.session .actions{display:flex;gap:10px;justify-content:center;margin-top:6px;}
+.session .done-msg{display:none;}
+.session .done-msg.show{display:block;}
+.session .done-msg .big{font-family:'Fraunces',serif;font-size:24px;margin-bottom:6px;}
+.session .done-msg p{color:var(--text-muted);font-size:13.5px;margin-bottom:20px;}
+
+/* ---- misc ---- */
+.hidden{display:none !important;}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin:26px 0 10px;font-weight:700;}
+.section-title:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="mark"></span><h1>Aro</h1></div>
+  <div class="streak" id="streakBadge">🔥 0 días</div>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-view="hoy">Hoy</button>
+  <button data-view="programa">Programa</button>
+  <button data-view="ejercicios">Ejercicios</button>
+  <button data-view="progreso">Progreso</button>
+  <button data-view="guia">Guía</button>
+</nav>
+
+<main class="app">
+
+  <!-- HOY -->
+  <section class="view active" id="view-hoy">
+    <div class="card hero">
+      <div class="ringwrap">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="44"></circle>
+          <circle class="prog" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="ringcenter">
+          <div class="big" id="heroWeekNum">S1</div>
+          <div class="lbl">semana actual</div>
+        </div>
+      </div>
+      <h2 id="heroTitle">Rutina de hoy</h2>
+      <p id="heroSub">Un rato de constancia por día rinde más que sesiones largas y salteadas. Empezá por identificar el músculo si es tu primera vez.</p>
+    </div>
+
+    <div class="card">
+      <span class="pill">Checklist de hoy</span>
+      <div class="checklist" id="todayChecklist"></div>
+    </div>
+  </section>
+
+  <!-- PROGRAMA -->
+  <section class="view" id="view-programa">
+    <div class="card">
+      <h2>Programa de 6 semanas</h2>
+      <p class="sub">Progresión gradual: primero aislar el músculo, después sumar volumen, y sobre el final incorporar las técnicas de comportamiento durante la intimidad. Si una semana te queda grande, quedate un poco más en ella — no hay apuro.</p>
+      <div id="weekList"></div>
+    </div>
+  </section>
+
+  <!-- EJERCICIOS -->
+  <section class="view" id="view-ejercicios">
+    <div class="section-title">Entrenamiento del suelo pélvico</div>
+    <div id="exPhysical"></div>
+    <div class="section-title">Técnicas de comportamiento</div>
+    <div id="exBehavioral"></div>
+    <div class="section-title">Mente y respiración</div>
+    <div id="exMental"></div>
+  </section>
+
+  <!-- PROGRESO -->
+  <section class="view" id="view-progreso">
+    <div class="card">
+      <h2>Tu progreso</h2>
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="statStreak">0</div><div class="lbl">racha actual</div></div>
+        <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">sesiones totales</div></div>
+        <div class="stat"><div class="num" id="statWeek">1</div><div class="lbl">semana</div></div>
+      </div>
+      <span class="pill relax">Últimos 28 días</span>
+      <div class="cal" id="calGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Registro rápido (opcional)</h2>
+      <p class="sub">Anotá lo que quieras seguir vos mismo, en tus propios términos. Solo se guarda en este dispositivo.</p>
+      <div class="log-field">
+        <label for="logMinutes">Duración estimada de hoy, en minutos</label>
+        <input type="number" id="logMinutes" min="0" placeholder="ej: 6">
+      </div>
+      <div class="log-field">
+        <label for="logNota">Nota del día</label>
+        <input type="text" id="logNota" placeholder="ej: mejor control con la respiración">
+      </div>
+      <button class="btn block" style="margin-top:14px" id="saveLogBtn">Guardar registro de hoy</button>
+    </div>
+  </section>
+
+  <!-- GUÍA -->
+  <section class="view" id="view-guia">
+    <div class="card guide">
+      <h2>Qué dice la evidencia</h2>
+      <p>La eyaculación precoz es uno de los problemas sexuales masculinos más comunes — se estima que afecta a algo así como uno de cada cinco hombres en algún momento. No es un fallo de carácter ni algo raro: es un patrón entrenable, con un componente físico (el reflejo del suelo pélvico) y uno psicológico (ansiedad de desempeño, hábitos de excitación rápida).</p>
+      <div class="stat-line"><span class="n">55–83%</span><span class="t">de los casos mejora con entrenamiento constante del suelo pélvico (Kegel), según revisiones clínicas.</span></div>
+      <div class="stat-line"><span class="n">7–9 min</span><span class="t">de aumento en el tiempo hasta la eyaculación reportado en ensayos que combinaron técnicas de comportamiento (stop-start, compresión) frente a no hacer nada.</span></div>
+      <p>Las guías de las principales sociedades de medicina sexual coinciden en un enfoque combinado: entrenar el músculo pubococcígeo (PC), practicar las técnicas de stop-start y compresión, y trabajar la ansiedad de desempeño con respiración y foco sensorial. Ningún método aislado funciona tan bien como los tres juntos, sostenidos varias semanas.</p>
+      <h2 style="margin-top:22px">Sobre la ansiedad de desempeño</h2>
+      <p>Es muy común que la eyaculación rápida y la ansiedad se retroalimenten: cuanto más te preocupa que pase, más rápido tiende a pasar. Bajar el foco de "rendir" y ponerlo en las sensaciones del cuerpo (respiración lenta, notar la excitación subir y bajar sin pelearla) es en sí mismo parte del entrenamiento, no un accesorio.</p>
+      <h2 style="margin-top:22px">Con pareja</h2>
+      <p>Si tenés pareja, el "foco sensorial" (sensate focus) — turnarse para tocarse sin buscar el orgasmo, primero sin zonas genitales y después incorporándolas de a poco — ayuda a bajar la presión de la situación y da lugar a practicar las técnicas de control en un contexto más relajado.</p>
+      <div class="disclaimer">
+        Esta app organiza información general de salud sexual y no reemplaza una consulta médica. Si notás dolor pélvico, sangrado, dificultad para orinar, o si la eyaculación precoz te genera mucho malestar o es de aparición repentina, consultá con un urólogo o un/a sexólogo/a — a veces hay causas que conviene descartar o tratar en paralelo.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- SESSION OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="session">
+    <div id="sessionRunning">
+      <h3 id="sName">Ejercicio</h3>
+      <div class="cyclecount" id="sCycleCount">Ciclo 1 / 10</div>
+      <div class="ringwrap">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="44"></circle>
+          <circle class="prog" id="sRing" cx="50" cy="50" r="44" stroke-dasharray="276" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="ringcenter">
+          <div class="phase" id="sPhase">Contraé</div>
+          <div class="secs" id="sSecs">3</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary small" id="pauseBtn">Pausar</button>
+        <button class="btn secondary small" id="stopBtn">Terminar</button>
+      </div>
+    </div>
+    <div class="done-msg" id="sDone">
+      <div class="big">Listo ✓</div>
+      <p>Sesión guardada en tu progreso de hoy.</p>
+      <button class="btn block" id="closeDoneBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ---------------- DATA ---------------- */
+
+const EXERCISES = {
+  identificacion: {
+    name:'Identificar el músculo PC', group:'physical',
+    short:'El primer paso, una sola vez, para saber qué músculo entrenar después.',
+    steps:[
+      'La próxima vez que orines, intentá cortar el chorro a la mitad. El músculo que se tensa para lograrlo es el pubococcígeo (PC).',
+      'Usalo solo para identificarlo — no lo conviertas en costumbre, porque interrumpir la orina seguido no es bueno para la vejiga.',
+      'Una vez que lo reconocés, podés contraerlo en cualquier posición y momento sin necesidad de orinar.'
+    ],
+    timer:null
+  },
+  rapidas: {
+    name:'Contracciones rápidas', group:'physical',
+    short:'Series cortas de contraer y soltar. Mejoran la velocidad de reacción del músculo.',
+    steps:[
+      'Contraé el músculo PC con fuerza durante 1 segundo.',
+      'Soltalo por completo durante 1 segundo.',
+      'Repetí sin usar abdomen, glúteos ni piernas — solo el suelo pélvico.'
+    ],
+    timer:{phases:[{label:'Contraé',type:'accent',def:1},{label:'Soltá',type:'relax',def:1}]}
+  },
+  sostenidas: {
+    name:'Contracciones sostenidas', group:'physical',
+    short:'Mantener la contracción un rato y descansar el mismo tiempo. Construye resistencia.',
+    steps:[
+      'Contraé el músculo PC y sostené la tensión durante el tiempo indicado.',
+      'Soltá por completo el mismo tiempo antes de repetir.',
+      'Si sentís que perdés la contracción antes de tiempo, acortá la duración — es mejor calidad que aguantar mal.'
+    ],
+    timer:{phases:[{label:'Sostené',type:'accent',def:5},{label:'Descansá',type:'relax',def:5}]}
+  },
+  inversos: {
+    name:'Kegels inversos', group:'physical',
+    short:'En vez de apretar, aprender a soltar y relajar el suelo pélvico a voluntad.',
+    steps:[
+      'Con el músculo en reposo, intentá empujar suavemente hacia abajo, como relajando por completo la zona (similar a la fase inicial de orinar u obrar, sin hacerlo).',
+      'Mantené esa relajación profunda unos segundos.',
+      'Volvé a un estado neutro (ni contraído ni empujado) antes de repetir.'
+    ],
+    timer:{phases:[{label:'Relajá y aflojá',type:'relax',def:5},{label:'Volvé a neutral',type:'accent',def:3}]}
+  },
+  stopstart: {
+    name:'Técnica stop-start', group:'behavioral',
+    short:'Se practica durante la masturbación o el sexo, en pareja o a solas. Enseña a reconocer el punto de "no retorno" antes de llegar a él.',
+    steps:[
+      'Estimulá hasta sentir que la urgencia de eyacular empieza a subir, bastante antes del punto en el que ya no hay vuelta atrás.',
+      'Detené por completo el estímulo y esperá a que la sensación baje, sin contraer nada — solo pausar.',
+      'Retomá y repetí el ciclo unas 3-4 veces antes de permitir la eyaculación en el último ciclo.',
+      'Con la práctica se vuelve más fácil reconocer ese punto cada vez con más margen.'
+    ],
+    timer:null
+  },
+  compresion: {
+    name:'Técnica de compresión', group:'behavioral',
+    short:'Variante del stop-start: en vez de solo pausar, se aplica presión para bajar la excitación más rápido.',
+    steps:[
+      'Al sentir que la urgencia sube, detené el estímulo.',
+      'Aplicá presión firme (con los dedos, o dejando que la pareja lo haga) en la base del pene, justo donde se une con el cuerpo, durante unos segundos.',
+      'Soltá la presión, esperá a que baje la sensación, y retomá.',
+      'Suele ser más efectiva que el stop-start solo cuando la urgencia sube muy rápido.'
+    ],
+    timer:null
+  },
+  respiracion: {
+    name:'Respiración y foco corporal', group:'mental',
+    short:'Baja la activación general del sistema nervioso y entrena a notar la excitación subir sin apurarte.',
+    steps:[
+      'Inhalá profundo por la nariz contando 4 segundos.',
+      'Sostené el aire 4 segundos.',
+      'Exhalá lento por la boca contando 6 segundos, soltando tensión de hombros y mandíbula.',
+      'Practicalo antes de la intimidad como calentamiento mental, y también podés usarlo en pleno acto cuando notes que la ansiedad sube.'
+    ],
+    timer:{phases:[{label:'Inhalá',type:'accent',def:4},{label:'Sostené',type:'amber',def:4},{label:'Exhalá',type:'relax',def:6}]}
+  },
+  foco_sensorial: {
+    name:'Foco sensorial (con pareja)', group:'mental',
+    short:'Ejercicio de a dos para bajar la presión de "rendir" y reconstruir la confianza corporal.',
+    steps:[
+      'Turnense para tocarse sin buscar el orgasmo ni la penetración, empezando por zonas no genitales.',
+      'La persona que recibe el toque solo se concentra en describir qué siente, no en "devolver" nada.',
+      'Con el tiempo, y solo cuando ambos estén cómodos, incorporen zonas genitales sin que sea el objetivo llegar a nada — la meta sigue siendo la sensación, no el resultado.',
+      'Es un ejercicio de varias sesiones, no de una sola vez.'
+    ],
+    timer:null
+  }
+};
+
+const PROGRAM = [
+  { week:1, focus:'Identificar el músculo PC y empezar de a poco. El objetivo esta semana es aprender la técnica, no la cantidad.',
+    tasks:['identificacion','rapidas','sostenidas'],
+    targets:{rapidas:{reps:10,sets:2}, sostenidas:{hold:3,rest:3,reps:8}} },
+  { week:2, focus:'Sumar volumen y agregar los kegels inversos para aprender también a relajar el suelo pélvico.',
+    tasks:['rapidas','sostenidas','inversos'],
+    targets:{rapidas:{reps:15,sets:2}, sostenidas:{hold:5,rest:5,reps:10}, inversos:{reps:5}} },
+  { week:3, focus:'Más resistencia en las sostenidas, y empezar a practicar stop-start durante la intimidad (a solas o en pareja), 2 veces esta semana.',
+    tasks:['rapidas','sostenidas','stopstart'],
+    targets:{rapidas:{reps:20,sets:2}, sostenidas:{hold:8,rest:8,reps:10}} },
+  { week:4, focus:'Sumar la respiración como calentamiento diario y seguir con stop-start.',
+    tasks:['rapidas','sostenidas','respiracion','stopstart'],
+    targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:10,rest:10,reps:10}} },
+  { week:5, focus:'Incorporar la técnica de compresión y, si tenés pareja, arrancar con foco sensorial. Foco en bajar la ansiedad de desempeño.',
+    tasks:['rapidas','sostenidas','compresion','respiracion'],
+    targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:10,rest:10,reps:10}} },
+  { week:6, focus:'Consolidación: mantené el nivel de la semana anterior e integrá todas las técnicas durante la intimidad real.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:12,rest:10,reps:10}} },
+];
+const MAINTENANCE = { week:'mant', focus:'Modo mantenimiento: 3 veces por semana alcanza para sostener lo ganado. Seguí usando las técnicas de comportamiento cuando las necesites.',
+  tasks:['rapidas','sostenidas'], targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:12,rest:10,reps:10}} };
+
+/* ---------------- STATE ---------------- */
+let state = {
+  startDate: null,
+  logs: {}   // 'YYYY-MM-DD' -> {done:{exId:true}, minutes:number, nota:string}
+};
+let session = { timer:null, phases:[], phaseIdx:0, cycle:1, totalCycles:1, secsLeft:0, exId:null, paused:false };
+
+const todayKey = () => new Date().toISOString().slice(0,10);
+const daysBetween = (a,b) => Math.floor((b-a)/86400000);
+
+function currentWeekPlan(){
+  if(!state.startDate) return PROGRAM[0];
+  const wk = Math.floor(daysBetween(new Date(state.startDate), new Date())/7) + 1;
+  return wk > 6 ? MAINTENANCE : (PROGRAM[wk-1] || PROGRAM[0]);
+}
+function currentWeekNumber(){
+  if(!state.startDate) return 1;
+  const wk = Math.floor(daysBetween(new Date(state.startDate), new Date())/7) + 1;
+  return wk > 6 ? 'M' : Math.min(wk,6);
+}
+
+/* ---------------- STORAGE ---------------- */
+async function loadState(){
+  try{
+    const raw = localStorage.getItem('control-pc:state');
+    if(raw){ state = JSON.parse(raw); }
+  }catch(e){ /* primera vez, sin datos todavía */ }
+  if(!state.startDate) state.startDate = new Date().toISOString().slice(0,10);
+  if(!state.logs) state.logs = {};
+  await persist();
+}
+async function persist(){
+  try{ localStorage.setItem('control-pc:state', JSON.stringify(state)); }
+  catch(e){ console.error('No se pudo guardar el progreso', e); }
+}
+
+/* ---------------- RENDER ---------------- */
+function render(){
+  renderHero();
+  renderChecklist();
+  renderProgram();
+  renderExercises();
+  renderProgress();
+  renderStreakBadge();
+}
+
+function renderHero(){
+  document.getElementById('heroWeekNum').textContent = 'S' + currentWeekNumber();
+  const plan = currentWeekPlan();
+  document.getElementById('heroSub').textContent = plan.focus;
+}
+
+function renderStreakBadge(){
+  document.getElementById('streakBadge').textContent = '🔥 ' + computeStreak() + ' días';
+}
+
+function computeStreak(){
+  let streak = 0;
+  let d = new Date();
+  while(true){
+    const key = d.toISOString().slice(0,10);
+    const entry = state.logs[key];
+    const done = entry && entry.done && Object.keys(entry.done).length > 0;
+    if(done){ streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function renderChecklist(){
+  const plan = currentWeekPlan();
+  const key = todayKey();
+  const entry = state.logs[key] || {done:{}};
+  const box = document.getElementById('todayChecklist');
+  box.innerHTML = '';
+  plan.tasks.forEach(exId=>{
+    const ex = EXERCISES[exId];
+    const t = plan.targets[exId];
+    let meta = ex.short;
+    if(t){
+      if(t.reps && t.sets) meta = `${t.reps} reps x ${t.sets} series`;
+      else if(t.hold) meta = `${t.hold}s contracción / ${t.rest}s descanso x ${t.reps}`;
+      else if(t.reps) meta = `${t.reps} repeticiones`;
+    }
+    const done = !!(entry.done && entry.done[exId]);
+    const row = document.createElement('div');
+    row.className = 'check-item' + (done?' done':'');
+    row.innerHTML = `
+      <div class="box" data-toggle="${exId}"></div>
+      <div class="info"><div class="name">${ex.name}</div><div class="meta">${meta}</div></div>
+      ${ex.timer ? `<button class="go" data-start="${exId}">Iniciar</button>` : `<button class="go" data-info="${exId}">Ver guía</button>`}
+    `;
+    box.appendChild(row);
+  });
+  box.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>toggleDone(el.dataset.toggle));
+  });
+  box.querySelectorAll('[data-start]').forEach(el=>{
+    el.addEventListener('click', ()=>startSession(el.dataset.start, plan.targets[el.dataset.start]));
+  });
+  box.querySelectorAll('[data-info]').forEach(el=>{
+    el.addEventListener('click', ()=>{ switchView('ejercicios'); openExerciseDetail(el.dataset.info); });
+  });
+}
+
+async function toggleDone(exId){
+  const key = todayKey();
+  if(!state.logs[key]) state.logs[key] = {done:{}};
+  if(!state.logs[key].done) state.logs[key].done = {};
+  state.logs[key].done[exId] = !state.logs[key].done[exId];
+  await persist();
+  render();
+}
+
+function renderProgram(){
+  const wrap = document.getElementById('weekList');
+  wrap.innerHTML = '';
+  const curNum = currentWeekNumber();
+  PROGRAM.forEach(w=>{
+    const isCurrent = w.week === curNum;
+    const div = document.createElement('div');
+    div.className = 'week' + (isCurrent ? ' current' : '');
+    const tags = w.tasks.map(id=>`<span class="tag">${EXERCISES[id].name}</span>`).join('');
+    div.innerHTML = `
+      <div class="wk-top"><span class="n ${isCurrent?'current':''}">Semana ${w.week}${isCurrent?' · en curso':''}</span></div>
+      <div class="focus">${w.focus}</div>
+      <div class="targets">${tags}</div>
+    `;
+    wrap.appendChild(div);
+  });
+  const mDiv = document.createElement('div');
+  mDiv.className = 'week' + (curNum==='M' ? ' current' : '');
+  mDiv.innerHTML = `
+    <div class="wk-top"><span class="n ${curNum==='M'?'current':''}">Mantenimiento (semana 7+)</span></div>
+    <div class="focus">${MAINTENANCE.focus}</div>
+    <div class="targets">${MAINTENANCE.tasks.map(id=>`<span class="tag">${EXERCISES[id].name}</span>`).join('')}</div>
+  `;
+  wrap.appendChild(mDiv);
+}
+
+function renderExercises(){
+  const groups = {physical:'exPhysical', behavioral:'exBehavioral', mental:'exMental'};
+  Object.keys(groups).forEach(g=>document.getElementById(groups[g]).innerHTML='');
+  Object.entries(EXERCISES).forEach(([id,ex])=>{
+    const container = document.getElementById(groups[ex.group]);
+    const card = document.createElement('div');
+    card.className = 'card ex-card';
+    card.innerHTML = `
+      <div class="row">
+        <div>
+          <h2>${ex.name}</h2>
+          <p class="sub" style="margin-bottom:0">${ex.short}</p>
+        </div>
+        ${ex.timer ? `<button class="btn small" data-start-lib="${id}">Iniciar</button>` : ''}
+      </div>
+      <div class="ex-detail" id="detail-${id}">
+        <ol class="ex-steps">${ex.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      </div>
+    `;
+    card.addEventListener('click',(e)=>{
+      if(e.target.closest('[data-start-lib]')) return;
+      document.getElementById(`detail-${id}`).classList.toggle('open');
+    });
+    container.appendChild(card);
+  });
+  document.querySelectorAll('[data-start-lib]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.startLib;
+      const plan = currentWeekPlan();
+      startSession(id, plan.targets[id]);
+    });
+  });
+}
+
+function openExerciseDetail(id){
+  const el = document.getElementById(`detail-${id}`);
+  if(el){ el.classList.add('open'); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
+
+function renderProgress(){
+  document.getElementById('statStreak').textContent = computeStreak();
+  const total = Object.values(state.logs).filter(l=>l.done && Object.keys(l.done).length>0).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statWeek').textContent = currentWeekNumber();
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const todayStr = todayKey();
+  for(let i=27;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    const key = d.toISOString().slice(0,10);
+    const entry = state.logs[key];
+    const done = entry && entry.done && Object.keys(entry.done).length>0;
+    const cell = document.createElement('div');
+    cell.className = 'd' + (done?' done':'') + (key===todayStr?' today':'');
+    cell.textContent = d.getDate();
+    grid.appendChild(cell);
+  }
+
+  const todayEntry = state.logs[todayStr] || {};
+  document.getElementById('logMinutes').value = todayEntry.minutes ?? '';
+  document.getElementById('logNota').value = todayEntry.nota ?? '';
+}
+
+/* ---------------- TABS ---------------- */
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.addEventListener('click', ()=>switchView(b.dataset.view));
+});
+
+/* ---------------- SESSION ENGINE ---------------- */
+const RING_CIRC = 2 * Math.PI * 44;
+const colorFor = {accent:'var(--accent)', relax:'var(--relax)', amber:'var(--amber)'};
+
+function buildPhases(exId, targets){
+  const ex = EXERCISES[exId];
+  const t = targets || {};
+  let cycles = 10;
+  let phases = ex.timer.phases.map(p=>({...p}));
+  if(exId==='rapidas'){
+    cycles = (t.reps||10) * (t.sets||1);
+  } else if(exId==='sostenidas'){
+    phases[0].def = t.hold || phases[0].def;
+    phases[1].def = t.rest || phases[1].def;
+    cycles = t.reps || 10;
+  } else if(exId==='inversos'){
+    cycles = t.reps || 5;
+  } else if(exId==='respiracion'){
+    cycles = 6;
+  }
+  return {phases, cycles};
+}
+
+function startSession(exId, targets){
+  const ex = EXERCISES[exId];
+  if(!ex.timer){ switchView('ejercicios'); openExerciseDetail(exId); return; }
+  const {phases, cycles} = buildPhases(exId, targets);
+  session = {exId, phases, phaseIdx:0, cycle:1, totalCycles:cycles, secsLeft:phases[0].def, paused:false, timer:null};
+  document.getElementById('sName').textContent = ex.name;
+  document.getElementById('sessionRunning').style.display='block';
+  document.getElementById('sDone').classList.remove('show');
+  document.getElementById('overlay').classList.add('open');
+  tickRender();
+  session.timer = setInterval(tick, 1000);
+}
+
+function tick(){
+  if(session.paused) return;
+  session.secsLeft--;
+  if(session.secsLeft <= 0){
+    session.phaseIdx++;
+    if(session.phaseIdx >= session.phases.length){
+      session.phaseIdx = 0;
+      session.cycle++;
+      if(session.cycle > session.totalCycles){
+        finishSession();
+        return;
+      }
+    }
+    session.secsLeft = session.phases[session.phaseIdx].def;
+  }
+  tickRender();
+}
+
+function tickRender(){
+  const phase = session.phases[session.phaseIdx];
+  document.getElementById('sPhase').textContent = phase.label;
+  document.getElementById('sSecs').textContent = session.secsLeft + 's';
+  document.getElementById('sCycleCount').textContent = `Ciclo ${session.cycle} / ${session.totalCycles}`;
+  const ring = document.getElementById('sRing');
+  ring.style.stroke = colorFor[phase.type] || 'var(--accent)';
+  const frac = 1 - (session.secsLeft / phase.def);
+  ring.style.strokeDashoffset = RING_CIRC * (1-frac);
+}
+
+async function finishSession(){
+  clearInterval(session.timer);
+  document.getElementById('sessionRunning').style.display='none';
+  document.getElementById('sDone').classList.add('show');
+  const key = todayKey();
+  if(!state.logs[key]) state.logs[key] = {done:{}};
+  if(!state.logs[key].done) state.logs[key].done = {};
+  state.logs[key].done[session.exId] = true;
+  await persist();
+  render();
+}
+
+document.getElementById('pauseBtn').addEventListener('click', ()=>{
+  session.paused = !session.paused;
+  document.getElementById('pauseBtn').textContent = session.paused ? 'Seguir' : 'Pausar';
+});
+document.getElementById('stopBtn').addEventListener('click', ()=>{
+  clearInterval(session.timer);
+  document.getElementById('overlay').classList.remove('open');
+});
+document.getElementById('closeDoneBtn').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('open');
+});
+
+/* ---------------- LOG SAVE ---------------- */
+document.getElementById('saveLogBtn').addEventListener('click', async ()=>{
+  const key = todayKey();
+  if(!state.logs[key]) state.logs[key] = {done:{}};
+  const minutes = document.getElementById('logMinutes').value;
+  const nota = document.getElementById('logNota').value;
+  state.logs[key].minutes = minutes ? Number(minutes) : undefined;
+  state.logs[key].nota = nota || undefined;
+  await persist();
+  const btn = document.getElementById('saveLogBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Guardado ✓';
+  setTimeout(()=>btn.textContent = original, 1400);
+});
+
+/* ---------------- INIT ---------------- */
+(async function init(){
+  await loadState();
+  render();
+})();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=>console.error('SW no registrado', e));
+  });
+}
+
+})();
+</script>
+</body>
+</html>

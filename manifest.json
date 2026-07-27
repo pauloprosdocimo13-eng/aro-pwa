@@ -1,0 +1,15 @@
+{
+  "name": "Aro · Entrenamiento de control",
+  "short_name": "Aro",
+  "description": "Rutinas guiadas de suelo pélvico, técnicas de comportamiento y respiración para mejorar el control eyaculatorio.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10171a",
+  "theme_color": "#10171a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
