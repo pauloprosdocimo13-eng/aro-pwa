@@ -325,6 +325,12 @@ section.view.active{display:block;}
       </div>
       <button class="btn block" style="margin-top:14px" id="saveLogBtn">Guardar registro de hoy</button>
     </div>
+
+    <div class="card">
+      <h2>Reiniciar progreso</h2>
+      <p class="sub">Borra la racha, el calendario y los registros guardados, y vuelve a arrancar la semana 1 desde hoy. No se puede deshacer.</p>
+      <button class="btn secondary block" id="resetBtn">Reiniciar todo el progreso</button>
+    </div>
   </section>
 
   <!-- GUÍA -->
@@ -808,6 +814,22 @@ document.getElementById('saveLogBtn').addEventListener('click', async ()=>{
   const original = btn.textContent;
   btn.textContent = 'Guardado ✓';
   setTimeout(()=>btn.textContent = original, 1400);
+});
+
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('resetBtn');
+  if(btn.dataset.confirm !== 'yes'){
+    btn.textContent = '¿Seguro? Tocá de nuevo para confirmar';
+    btn.dataset.confirm = 'yes';
+    setTimeout(()=>{ btn.textContent = 'Reiniciar todo el progreso'; btn.dataset.confirm=''; }, 4000);
+    return;
+  }
+  state = { startDate: new Date().toISOString().slice(0,10), logs: {} };
+  await persist();
+  btn.dataset.confirm = '';
+  btn.textContent = 'Reiniciar todo el progreso';
+  render();
+  switchView('hoy');
 });
 
 /* ---------------- INIT ---------------- */
