@@ -295,8 +295,8 @@ table.grid-table td.gcell.today{outline:1.5px solid var(--amber);}
   <!-- PROGRAMA -->
   <section class="view" id="view-programa">
     <div class="card">
-      <h2>Programa de 6 semanas</h2>
-      <p class="sub">Progresión gradual: primero aislar el músculo, después sumar volumen, y sobre el final incorporar las técnicas de comportamiento durante la intimidad. Si una semana te queda grande, quedate un poco más en ella — no hay apuro.</p>
+      <h2>Programa de 12 semanas</h2>
+      <p class="sub">Dos bloques de progresión: el primero (semanas 1-6) aísla el músculo y suma volumen de a poco; el segundo (semanas 7-12) sube la exigencia — más series, más aguante y menos descanso, el equivalente a "agregar peso" en este músculo. Si una semana te queda grande, quedate un poco más en ella — no hay apuro.</p>
       <div id="weekList"></div>
     </div>
   </section>
@@ -361,6 +361,8 @@ table.grid-table td.gcell.today{outline:1.5px solid var(--amber);}
       <div class="stat-line"><span class="n">55–83%</span><span class="t">de los casos mejora con entrenamiento constante del suelo pélvico (Kegel), según revisiones clínicas.</span></div>
       <div class="stat-line"><span class="n">7–9 min</span><span class="t">de aumento en el tiempo hasta la eyaculación reportado en ensayos que combinaron técnicas de comportamiento (stop-start, compresión) frente a no hacer nada.</span></div>
       <p>Las guías de las principales sociedades de medicina sexual coinciden en un enfoque combinado: entrenar el músculo pubococcígeo (PC), practicar las técnicas de stop-start y compresión, y trabajar la ansiedad de desempeño con respiración y foco sensorial. Ningún método aislado funciona tan bien como los tres juntos, sostenidos varias semanas.</p>
+      <h2 style="margin-top:22px">¿Este músculo también responde a más intensidad?</h2>
+      <p>Sí. El PC es un músculo esquelético como cualquier otro, así que sigue el mismo principio de sobrecarga progresiva: más tiempo bajo tensión, más repeticiones o menos descanso entrenan más fuerza y resistencia con el tiempo. La diferencia es que no se le puede colgar peso externo de forma directa — por eso el programa "agrega peso" subiendo el aguante y el volumen, y bajando el descanso entre repeticiones a medida que pasan las semanas (el bloque 2, semanas 7-12, está pensado justamente para eso).</p>
       <h2 style="margin-top:22px">Sobre la ansiedad de desempeño</h2>
       <p>Es muy común que la eyaculación rápida y la ansiedad se retroalimenten: cuanto más te preocupa que pase, más rápido tiende a pasar. Bajar el foco de "rendir" y ponerlo en las sensaciones del cuerpo (respiración lenta, notar la excitación subir y bajar sin pelearla) es en sí mismo parte del entrenamiento, no un accesorio.</p>
       <h2 style="margin-top:22px">Con pareja</h2>
@@ -495,27 +497,48 @@ const EXERCISES = {
 };
 
 const PROGRAM = [
-  { week:1, focus:'Identificar el músculo PC y empezar de a poco. El objetivo esta semana es aprender la técnica, no la cantidad.',
+  { week:1, block:1, focus:'Identificar el músculo PC y empezar de a poco. El objetivo esta semana es aprender la técnica, no la cantidad.',
     tasks:['identificacion','rapidas','sostenidas'],
     targets:{rapidas:{reps:10,sets:2}, sostenidas:{hold:3,rest:3,reps:8}} },
-  { week:2, focus:'Sumar volumen y agregar los kegels inversos para aprender también a relajar el suelo pélvico.',
+  { week:2, block:1, focus:'Sumar volumen y agregar los kegels inversos para aprender también a relajar el suelo pélvico.',
     tasks:['rapidas','sostenidas','inversos'],
     targets:{rapidas:{reps:15,sets:2}, sostenidas:{hold:5,rest:5,reps:10}, inversos:{reps:5}} },
-  { week:3, focus:'Más resistencia en las sostenidas, y empezar a practicar stop-start durante la intimidad (a solas o en pareja), 2 veces esta semana.',
+  { week:3, block:1, focus:'Más resistencia en las sostenidas, y empezar a practicar stop-start durante la intimidad (a solas o en pareja), 2 veces esta semana.',
     tasks:['rapidas','sostenidas','stopstart'],
     targets:{rapidas:{reps:20,sets:2}, sostenidas:{hold:8,rest:8,reps:10}} },
-  { week:4, focus:'Sumar la respiración como calentamiento diario y seguir con stop-start.',
+  { week:4, block:1, focus:'Sumar la respiración como calentamiento diario y seguir con stop-start.',
     tasks:['rapidas','sostenidas','respiracion','stopstart'],
     targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:10,rest:10,reps:10}} },
-  { week:5, focus:'Incorporar la técnica de compresión y, si tenés pareja, arrancar con foco sensorial. Foco en bajar la ansiedad de desempeño.',
+  { week:5, block:1, focus:'Incorporar la técnica de compresión y, si tenés pareja, arrancar con foco sensorial. Foco en bajar la ansiedad de desempeño.',
     tasks:['rapidas','sostenidas','compresion','respiracion'],
     targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:10,rest:10,reps:10}} },
-  { week:6, focus:'Consolidación: mantené el nivel de la semana anterior e integrá todas las técnicas durante la intimidad real.',
+  { week:6, block:1, focus:'Cierre del bloque base: mantené el nivel de la semana anterior e integrá todas las técnicas durante la intimidad real.',
     tasks:['rapidas','sostenidas','stopstart','compresion'],
     targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:12,rest:10,reps:10}} },
 ];
-const MAINTENANCE = { week:'mant', focus:'Modo mantenimiento: 3 veces por semana alcanza para sostener lo ganado. Seguí usando las técnicas de comportamiento cuando las necesites.',
-  tasks:['rapidas','sostenidas'], targets:{rapidas:{reps:25,sets:2}, sostenidas:{hold:12,rest:10,reps:10}} };
+const PROGRAM2 = [
+  { week:7, block:2, focus:'Arranca el bloque de progresión avanzada: sumamos una tercera serie de rápidas y un poco más de aguante en las sostenidas. Es el equivalente a "agregar peso" en este músculo.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:25,sets:3}, sostenidas:{hold:12,rest:9,reps:12}} },
+  { week:8, block:2, focus:'Más repeticiones por serie y un poco más de aguante.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:30,sets:3}, sostenidas:{hold:14,rest:9,reps:12}} },
+  { week:9, block:2, focus:'Empezamos a bajar el descanso entre sostenidas — eso exige más resistencia, no solo fuerza pico.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:30,sets:3}, sostenidas:{hold:16,rest:8,reps:14}} },
+  { week:10, block:2, focus:'Subimos aguante y volumen otra vez.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:35,sets:3}, sostenidas:{hold:18,rest:8,reps:14}} },
+  { week:11, block:2, focus:'Último empujón antes del pico: más repeticiones, menos descanso entre sostenidas.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:35,sets:3}, sostenidas:{hold:20,rest:7,reps:15}} },
+  { week:12, block:2, focus:'Semana pico de este bloque. De acá en más entrás en mantenimiento a este nivel — lo importante ya está construido.',
+    tasks:['rapidas','sostenidas','stopstart','compresion'],
+    targets:{rapidas:{reps:40,sets:3}, sostenidas:{hold:20,rest:6,reps:15}} },
+];
+const ALL_WEEKS = PROGRAM.concat(PROGRAM2);
+const MAINTENANCE = { week:'mant', focus:'Modo mantenimiento al nivel pico del bloque 2: 3 veces por semana alcanza para sostener lo ganado. Seguí usando las técnicas de comportamiento cuando las necesites.',
+  tasks:['rapidas','sostenidas','stopstart','compresion'], targets:{rapidas:{reps:40,sets:3}, sostenidas:{hold:20,rest:6,reps:15}} };
 
 /* ---------------- STATE ---------------- */
 let state = {
@@ -528,14 +551,14 @@ const todayKey = () => new Date().toISOString().slice(0,10);
 const daysBetween = (a,b) => Math.floor((b-a)/86400000);
 
 function currentWeekPlan(){
-  if(!state.startDate) return PROGRAM[0];
+  if(!state.startDate) return ALL_WEEKS[0];
   const wk = Math.floor(daysBetween(new Date(state.startDate), new Date())/7) + 1;
-  return wk > 6 ? MAINTENANCE : (PROGRAM[wk-1] || PROGRAM[0]);
+  return wk > 12 ? MAINTENANCE : (ALL_WEEKS[wk-1] || ALL_WEEKS[0]);
 }
 function currentWeekNumber(){
   if(!state.startDate) return 1;
   const wk = Math.floor(daysBetween(new Date(state.startDate), new Date())/7) + 1;
-  return wk > 6 ? 'M' : Math.min(wk,6);
+  return wk > 12 ? 'M' : Math.min(wk,12);
 }
 
 /* ---------------- STORAGE ---------------- */
@@ -634,7 +657,15 @@ function renderProgram(){
   const wrap = document.getElementById('weekList');
   wrap.innerHTML = '';
   const curNum = currentWeekNumber();
-  PROGRAM.forEach(w=>{
+  let lastBlock = null;
+  ALL_WEEKS.forEach(w=>{
+    if(w.block !== lastBlock){
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.textContent = w.block===1 ? 'Bloque 1 · base (semanas 1-6)' : 'Bloque 2 · progresión avanzada (semanas 7-12)';
+      wrap.appendChild(title);
+      lastBlock = w.block;
+    }
     const isCurrent = w.week === curNum;
     const div = document.createElement('div');
     div.className = 'week' + (isCurrent ? ' current' : '');
@@ -646,10 +677,14 @@ function renderProgram(){
     `;
     wrap.appendChild(div);
   });
+  const mTitle = document.createElement('div');
+  mTitle.className = 'section-title';
+  mTitle.textContent = 'Mantenimiento';
+  wrap.appendChild(mTitle);
   const mDiv = document.createElement('div');
   mDiv.className = 'week' + (curNum==='M' ? ' current' : '');
   mDiv.innerHTML = `
-    <div class="wk-top"><span class="n ${curNum==='M'?'current':''}">Mantenimiento (semana 7+)</span></div>
+    <div class="wk-top"><span class="n ${curNum==='M'?'current':''}">Semana 13 en adelante</span></div>
     <div class="focus">${MAINTENANCE.focus}</div>
     <div class="targets">${MAINTENANCE.tasks.map(id=>`<span class="tag">${EXERCISES[id].name}</span>`).join('')}</div>
   `;
